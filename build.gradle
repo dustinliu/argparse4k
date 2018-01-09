@@ -115,11 +115,11 @@ bintray {
         gpg {
             sign = true
         }
-//        mavenCentralSync {
-//            sync = true
-//            user = ossrhUsername
-//            password = ossrhPassword
-//        }
+        mavenCentralSync {
+            sync = true
+            user = System.getenv('OSS_USER')
+            password = System.getenv('OSS_PW')
+        }
     }
 }
 
