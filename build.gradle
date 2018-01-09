@@ -31,6 +31,7 @@ def repoUrl = 'https://github.com/dustinliu/argparse4k'
 def vcsUrl = 'https://github.com/dustinliu/argparse4k.git'
 
 dependencies {
+    compile 'org.dustinl.argparse4k:argparse4k:1.0.1'
     compile 'org.slf4j:slf4j-api:1.7.25'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     compile 'net.sourceforge.argparse4j:argparse4j:0.8.1'
