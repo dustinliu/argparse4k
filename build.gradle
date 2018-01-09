@@ -126,6 +126,8 @@ bintray {
 publishing {
     publications {
         mavenRelease(MavenPublication) {
+            artifact jar
+            artifact sourcesJar
             pom.withXml {
                 def root = asNode()
                 root.appendNode('description', project.description)
