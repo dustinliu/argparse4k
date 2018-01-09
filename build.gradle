@@ -78,33 +78,17 @@ jacocoTestReport {
 
 dokka {
     outputFormat = 'javadoc'
-    outputDirectory = "$buildDir/kdoc"
+    outputDirectory = javadoc.destinationDir
 }
 
 task kdocJar(type: Jar, dependsOn: dokka) {
     classifier = 'javadoc'
-    from javadoc
+    from javadoc.destinationDir
 }
-
 
 task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
-}
-
-def pomConfig = {
-    licenses {
-        license {
-            name 'BSD 3-clause "New" or "Revised" License'
-            url 'https://github.com/dustinliu/argparse4k/blob/master/LICENSE'
-            distribution 'repo'
-        }
-    }
-    scm {
-        connection "scm:git:${vcsUrl}"
-        developerConnection "scm:git:${vcsUrl}"
-        url repoUrl
-    }
 }
 
 bintray {
@@ -134,6 +118,21 @@ bintray {
 //            user = System.getenv('OSS_USER')
 //            password = System.getenv('OSS_PW')
 //        }
+    }
+}
+
+def pomConfig = {
+    licenses {
+        license {
+            name 'BSD 3-clause "New" or "Revised" License'
+            url 'https://github.com/dustinliu/argparse4k/blob/master/LICENSE'
+            distribution 'repo'
+        }
+    }
+    scm {
+        connection "scm:git:${vcsUrl}"
+        developerConnection "scm:git:${vcsUrl}"
+        url repoUrl
     }
 }
 
