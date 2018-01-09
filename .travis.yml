@@ -1,23 +1,30 @@
----
 language: java
 jdk:
-  - oraclejdk8
+- oraclejdk8
 
 sudo: false
 
 branches:
-    only:
-        - master
+  only:
+  - master
 
-# https://docs.travis-ci.com/user/customizing-the-build#Skipping-the-Installation-Step
-install: true  # if we don't skip install, ./gradlew assemble is invoked, but this task is not available.
+script:
+- "./gradlew clean check"
+- if [ "${TRAVIS_PULL_REQUEST}" = "false" ];then git checkout master;git remote set-url origin "https://$GITHUB_KEY@github.com/dustinliu/argparse4k";fi
+- test "${TRAVIS_PULL_REQUEST}" != "false" || test "${TRAVIS_BRANCH}" != "master" || ./gradlew clean release
 
 before_cache:
-  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+- rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+- rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 
 cache:
   bundler: true
   directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
+
+env:
+  global:
+  - secure: jYVATlriDh0eeU0eVrjyk9lf/DV2pxxKOw0fWZZZG8OivkZVaMfP44/BioKi8UKqjDz4UnNuJYJUFEYsEGTewCMv5xTQxzwnZbEVG4w4hIyuGEGxPp8vKDz2JrOAEWWyHHT2trTVeTJBiJIid0bVYqsMT3eNKkRHEWCq+ZIGn5sc2Oc3t2YYRQL3ZYv0Ctm+DFsY6f5O0F9l7Zpqb3UqEq6Xqnwv7J9rKw8E7mDc8/Akey20DUTowDdb/quTBwwk3irJ6VOf16i+K98/cpMsA3rD7DMAnnHUl9tJAj8F8Z2ZzwMIXRgkHxIQ58f/rzAsq32ttrHR9tD0xVysHUqGTJN4cOgkNVY1Y6dRnIypLvH0b/7mhqC4Nu8kBNc2bNtUIsvwWxlKAOei/gevOhWW/FPWJfoN5YBhZ2o/IK+ND9uOOx1cImp9LjD6+U1R2B6NClZXCIvvUkAN4Ko/pBIDKrMwQJbR7GwcE4O8rHyYcZ/nv0lPmACX+plWTovxBlV5jd5ZPCYnd3QwleJJQpob8I35XvlcYCb9q+yBf2yxBsbMhKztSASydtLnIPfCgSHhxWbSapThBqlK2X3qwXbooLRM/43g+gAVOEHTndtlweYdtw1cQj/+PA/lkrUC9Jxa57R3Zz/K2fwPOdwjYPC8SLtXw/aS9A1Pl+Jbp9GSu6g=
+  - secure: XxpS/K2aMJNuG0xFi0sJkxUlkpJ9RSMJbd7ZpsHLnwBTey8Mak6t811j9fettUKQ1q15QMVrsDc5IPjxnmcwMQ3sqHYmihXbv3UKysU7JfQokF4rI4oJnyEO6lQxdgyn87VK3SgbeJ6tvHVw7UfhLxN7MVYDS8QwEehpLEdhFAw9F13DYtY3cOfeN43mxdfjJ9eK3hvB2bt6cgUWT5/eTYmJvnNLi9eBdSAgR31nvIykgWMGTVmhhQ5TueQYFXlNP7RyuuxO0Gg2B1LFqFEAJ2GqUTvQuQUAaDCTauqo1CJi7y2+ZItYUEj7KLOVmAucSXDbFNqw2kNTF4ESFreE3FJPUsDyqWpy2yidDNCCiFcYh5i07pg5WYqupqCz0ble5+oxsgyv0H55gU5PGt7G4WYDbpNu7qDyC7Tyd6qyxhYrtiTvPMiWM/sZU6Wllv96pMVCoks2tp8q5RX6lP0FCdg4jscLukeDTwJjbyvew6Zs/+TRp0NKm3fuhc2RGotdYbcVqxGv2vEidyXOLsg3DuNe5W9DPWbpHiwQOBqjCBeggolSnyWR1p+mBx/0KnOQgNdDsCL4lTh+PBUPnPlXfCPpnqYkxbdV5w5B0hLRFkx6kdqKRsQodPjHnaT1uwsvjP6aYnLd+SPUATBqVc0xpB2gL7k6uJ6j9OV7UNX2Ims=
+  - secure: JQFYeEe8V3I8hFiW75Ot82MApRmFBpy0tquPd0s4Ao3HIDKprhbrqIDCRuwDfcO8JbJKUZV9YP6Dk9b+lKV6EjWy6k/eM61yhkpJnOp8acEcZwJ0ahFUNerzK56ZVFZJfZh/DAjdN9lG5sSt78pfpxeqDbVZOkDRTURdHy1c3Flz4kgg7jnQUfbPRfJSofXDYsidRs76/yHVXBBrDyeFAaJ4OdF4HQZ86SC2Na7riqHDOdcPEq9IV0XVAx8yWF48SHivY1E0OmTj1lHgmco1zJD4ABYFzskxwYIyf1uZo4Dpw23YKoaX4MbE8iBrwrEG+hGGqvGmXu6svRTbSTH/8H0glMxyfso2e8234/sCG45hlnYz1M8Gw4lxaNEnex6GNplZhtq4+tHp2qPT4AOEz8HM14B1EcievqDESyvXuByZqV0IRaHgVj+AaCBiYFvQ6nxdyeH5T7lsKeKwqK6QkoqkafRbM74pS3maHlbRVfnHCSfjUkq6iM3MqYTtTVADLIRJ31Sns6SChXT8UoQI2pPEwoIpoY6dO50OxDEt2g6V7KxDsoDUnM5sahP4nytyFOwi1sVHcGRySaF52S7YEZ+MBqZN1l7cGqYYd5aFGnaUP4Tw56/X9ZWJ8eP+RKNPB7baYTwf2AENPcBbl809ZWgeBOyZZtqjp8fgrpu1krw=

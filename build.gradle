@@ -9,14 +9,26 @@ buildscript {
     }
 }
 
+plugins {
+    id 'net.researchgate.release' version '2.6.0'
+    id "com.jfrog.bintray" version "1.7.3"
+}
+
 apply plugin: 'kotlin'
 apply plugin: "jacoco"
 apply plugin: 'org.junit.platform.gradle.plugin'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 repositories {
     mavenCentral()
     jcenter()
 }
+
+group = 'org.dustinl.argparse4k'
+description = 'The Kotlin command-line argument parser library'
+def repoUrl = 'https://github.com/dustinliu/argparse4k'
+def vcsUrl = 'https://github.com/dustinliu/argparse4k.git'
 
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.25'
@@ -47,12 +59,12 @@ junitPlatform {
 }
 
 jacoco {
-    toolVersion = "0.7.9"
+    toolVersion = "0.8.0"
     reportsDir = file("$buildDir/jacoco/")
 }
 
 jacocoTestReport {
-    classDirectories = files("${buildDir}/classes")
+//    classDirectories = files("${buildDir}/classes")
 
     reports {
         xml.enabled true
@@ -65,3 +77,71 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
 }
+
+def pomConfig = {
+    licenses {
+        license {
+            name 'BSD 3-clause "New" or "Revised" License'
+            url 'https://github.com/dustinliu/argparse4k/blob/master/LICENSE'
+            distribution 'repo'
+        }
+    }
+    scm {
+        connection "scm:git:${vcsUrl}"
+        developerConnection "scm:git:${vcsUrl}"
+        url repoUrl
+    }
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_API_KEY')
+    publications = ['mavenRelease']
+
+    publish = true
+    override = false
+    pkg {
+        repo = 'maven'
+        name = project.name
+        desc = project.description
+        websiteUrl = repoUrl
+        issueTrackerUrl = '${repoUrl}/issues'
+        licenses = ['BSD 3-clause']
+        vcsUrl = vcsUrl
+    }
+
+    pkg.version {
+        name = version
+        gpg {
+            sign = true
+        }
+//        mavenCentralSync {
+//            sync = true
+//            user = ossrhUsername
+//            password = ossrhPassword
+//        }
+    }
+}
+
+publishing {
+    publications {
+        mavenRelease(MavenPublication) {
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', project.description)
+                root.appendNode('name', project.name)
+                root.appendNode('url', repoUrl)
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
+
+release {
+    failOnUnversionedFiles = false
+    failOnCommitNeeded = true
+    tagTemplate = '$name-$version'
+    newVersionCommitMessage = '[Gradle Release Plugin] [skip ci] new version release:'
+}
+
+afterReleaseBuild.dependsOn bintrayUpload
