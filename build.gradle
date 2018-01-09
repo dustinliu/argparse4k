@@ -129,6 +129,13 @@ def pomConfig = {
             distribution 'repo'
         }
     }
+    developers {
+        developer {
+            id 'dustinliu'
+            name 'Min Lun Liu'
+            email 'liu.minlun@gmail.com'
+        }
+    }
     scm {
         connection "scm:git:${vcsUrl}"
         developerConnection "scm:git:${vcsUrl}"
