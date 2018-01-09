@@ -1,11 +1,13 @@
 buildscript {
     ext.kotlin_version = '1.2.10'
+    ext.dokka_version = '0.9.14'
     repositories {
         mavenCentral()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.2'
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}"
     }
 }
 
@@ -19,6 +21,7 @@ apply plugin: "jacoco"
 apply plugin: 'org.junit.platform.gradle.plugin'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
+apply plugin: 'org.jetbrains.dokka'
 
 repositories {
     mavenCentral()
@@ -72,6 +75,17 @@ jacocoTestReport {
         html.destination file("${buildDir}/jacoco/jacocoHtml")
     }
 }
+
+dokka {
+    outputFormat = 'javadoc'
+    outputDirectory = "$buildDir/kdoc"
+}
+
+task kdocJar(type: Jar, dependsOn: dokka) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
 
 task sourcesJar(type: Jar) {
     classifier = 'sources'
@@ -128,6 +142,7 @@ publishing {
         mavenRelease(MavenPublication) {
             from components.java
             artifact sourcesJar
+            artifact kdocJar
             pom.withXml {
                 def root = asNode()
                 root.appendNode('description', project.description)
