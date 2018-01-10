@@ -8,13 +8,21 @@ class ParserTest {
     @Test
     fun `flag test`() {
         val parser = ArgumentParserImpl("testprog", arrayOf("-v"))
-        val testClass = object {
-            val version by parser.flag("-v", help = "help version")
-            val detached by parser.flag("-d", "--detached", help = "fdsf")
-        }
+        val version by parser.flag("-v", help = "help version")
+        val detached by parser.flag("-d", "--detached", help = "fdsf")
 
-        assertEquals(true, testClass.version)
-        assertEquals(false, testClass.detached)
+        assertEquals(true, version)
+        assertEquals(false, detached)
+    }
+
+    @Test
+    fun `help test`() {
+        val parser = ArgumentParserImpl("testprog", arrayOf("-h"))
+        val version by parser.flag("-v", help = "help version")
+        val detached by parser.flag("-d", "--detached", help = "fdsf")
+
+        val e = assertThrows(ArgumentException::class.java) { version }
+        assertTrue(e.message!!.contains("help", ignoreCase = true))
     }
 
     @Test
@@ -132,7 +140,8 @@ class ParserTest {
     @Test
     fun `command test`() {
         val parser = ArgumentParserImpl("testprog", arrayOf("ccc", "-v"))
-        val cmdParser = parser.addCommandArgumentParser("ccc")
+        parser.registerCommand("bbb")
+        val cmdParser = parser.registerCommand("ccc")
         val testClass = object {
             val verbose by parser.flag("-v", help = "container name")
         }
@@ -143,12 +152,28 @@ class ParserTest {
 
         assertEquals(false, testClass.verbose)
         assertEquals(true, testClass2.verbose)
+        assertEquals("ccc", parser.getCommand())
+    }
+
+    @Test
+    fun `command unknows test`() {
+        val parser = ArgumentParserImpl("testprog", arrayOf("bbb", "-v"))
+        val cmdParser = parser.registerCommand("ccc")
+        val testClass = object {
+            val verbose by parser.flag("-v", help = "container name")
+        }
+
+        val testClass2 = object {
+            val verbose by cmdParser.flag("-v")
+        }
+
+        assertThrows(ArgumentException::class.java) { parser.getCommand() }
     }
 
     @Test
     fun `command missing test`() {
         val parser = ArgumentParserImpl("testprog", arrayOf("-v"))
-        val cmdParser = parser.addCommandArgumentParser("ccc")
+        val cmdParser = parser.registerCommand("ccc")
         val testClass = object {
             val verbose by parser.flag("-v", help = "container name")
         }

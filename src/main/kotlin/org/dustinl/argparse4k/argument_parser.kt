@@ -1,9 +1,11 @@
 package org.dustinl.argparse4k
 
 import net.sourceforge.argparse4j.ArgumentParsers
+import net.sourceforge.argparse4j.helper.HelpScreenException
 import net.sourceforge.argparse4j.impl.Arguments
 import net.sourceforge.argparse4j.inf.ArgumentParserException
 import org.dustinl.argparse4k.exception.ArgumentException
+import org.dustinl.argparse4k.exception.HelpException
 import org.slf4j.LoggerFactory
 import net.sourceforge.argparse4j.inf.ArgumentParser as JavaParser
 
@@ -19,7 +21,10 @@ interface ArgumentParser {
     fun description(desc: String)
     fun epilog(epilog: String)
     fun help(): String
-    fun addCommandArgumentParser(name: String): CommandArgumentParser
+    fun registerCommand(name: String): CommandArgumentParser
+    fun getCommandParser(name: String): CommandArgumentParser
+    fun getCommand(): String
+    fun printError(e: ArgumentException)
 }
 
 interface Options {
@@ -27,10 +32,12 @@ interface Options {
 }
 
 object ArgumentParserFactory {
-    fun createParser(progName: String, args: Array<String>) = ArgumentParserImpl(progName, args)
+    fun createParser(progName: String, args: Array<String>): ArgumentParser = ArgumentParserImpl(progName, args)
 }
 
 abstract class ArgumentParserBase(val parser: JavaParser): ArgumentParser {
+    private val commandParsers = mutableMapOf<String, CommandArgumentParser>()
+
     override fun flag(vararg names: String, help: String?): Delegator<Boolean> {
         val argument = parser.addArgument(*names).action(Arguments.storeTrue()).setDefault(false)
         help?.run { argument.help(help) }
@@ -75,29 +82,41 @@ abstract class ArgumentParserBase(val parser: JavaParser): ArgumentParser {
 
     override fun help(): String = parser.formatHelp()
 
-    override fun addCommandArgumentParser(name: String) = CommandArgumentParser(name, this)
+    override fun registerCommand(name: String) =
+            commandParsers.computeIfAbsent(name) { CommandArgumentParser(name, this) }
+
+    override fun getCommandParser(name: String) = registerCommand(name)
+
+    override fun getCommand(): String = options.get("command")
+
+    override fun printError(e: ArgumentException) {
+        e.e.parser.handleError(e.e)
+    }
 }
 
-class ArgumentParserImpl(progName: String, private val args: Array<String>)
+internal class ArgumentParserImpl constructor(progName: String, private val args: Array<String>)
     : ArgumentParserBase(ArgumentParsers.newFor(progName).build()) {
-    val logger = LoggerFactory.getLogger(this::class.java)
+    companion object {
+        val logger = LoggerFactory.getLogger(this::class.java)!!
+    }
 
     override val options: Options by lazy {
         logger.debug("init options")
         try {
             val namespace = parser.parseArgs(args)
-            object: Options {
+            object : Options {
                 override fun <T> get(name: String): T = namespace.get<T>(name)
             }
-        } catch(e: ArgumentParserException) {
+        } catch (e: HelpScreenException) {
+            throw HelpException(e)
+        } catch (e: ArgumentParserException) {
             throw ArgumentException(e)
         }
     }
-
 }
 
-class CommandArgumentParser(name: String, rootParser: ArgumentParserBase)
-    : ArgumentParserBase(rootParser.parser.addSubparsers().addParser(name)) {
+class CommandArgumentParser internal constructor(val name: String, rootParser: ArgumentParserBase)
+    : ArgumentParserBase(rootParser.parser.addSubparsers().addParser(name).setDefault("command", name)) {
     override val options by lazy { rootParser.options }
 }
 

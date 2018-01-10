@@ -91,6 +91,11 @@ task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
+artifacts {
+    archives sourcesJar
+    archives kdocJar
+}
+
 bintray {
     user = System.getenv('BINTRAY_USER')
     key = System.getenv('BINTRAY_API_KEY')
@@ -164,7 +169,9 @@ release {
     failOnUnversionedFiles = false
     failOnCommitNeeded = true
     tagTemplate = '$name-$version'
-    newVersionCommitMessage = '[Gradle Release Plugin] [skip ci] new version release:'
+    newVersionCommitMessage = '[Gradle Release Plugin] [skip ci] bump version for next release :'
 }
 
 afterReleaseBuild.dependsOn bintrayUpload
+install.dependsOn sourcesJar
+install.dependsOn kdocJar

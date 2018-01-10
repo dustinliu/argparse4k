@@ -5,16 +5,11 @@
 ## usage
 ```kotlin
 val parser = ArgumentParserImpl("testprog", arrayOf("-v"))
+val version by parser.flag("-v", help = "help version")
+val detached by parser.flag("-d", "--detached", help = "fdsf")
 
-class TestClass {
-    val version by parser.flag("-v", help = "help version")
-    val detached by parser.flag("-d", "--detached", help = "fdsf")
-}
-
-val testClass = TestClass()
-
-assertEquals(true, testClass.version)
-assertEquals(false, testClass.detached)
+assertEquals(true, version)
+assertEquals(false, detached)
 ```
 
 ```kotlin

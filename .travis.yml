@@ -1,19 +1,19 @@
 language: java
 jdk:
 - oraclejdk8
+
 sudo: false
+
 branches:
   only:
   - master
+
 script:
-- "./gradlew clean check"
-- if [ "${TRAVIS_PULL_REQUEST}" = "false" ];then git checkout master;git remote set-url
-  origin "https://$GITHUB_KEY@github.com/dustinliu/argparse4k";fi
-- test "${TRAVIS_PULL_REQUEST}" != "false" || test "${TRAVIS_BRANCH}" != "master"
-  || ./gradlew clean release
-before_cache:
-- rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-- rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+- "./gradlew clean"
+- if [ "${TRAVIS_PULL_REQUEST}" = "true" ];then ./gradlew check";fi
+- if [ "${TRAVIS_PULL_REQUEST}" = "false" ];then git checkout master;git remote set-url origin "https://$GITHUB_KEY@github.com/dustinliu/argparse4k";fi
+- test "${TRAVIS_PULL_REQUEST}" != "false" || test "${TRAVIS_BRANCH}" != "master" || ./gradlew clean release
+
 cache:
   bundler: true
   directories:
