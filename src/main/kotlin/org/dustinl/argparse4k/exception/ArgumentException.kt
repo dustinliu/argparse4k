@@ -6,6 +6,7 @@ import java.io.StringWriter
 import kotlin.Exception
 
 open class ArgumentException(internal val e: ArgumentParserException) : Exception(e.message, e.cause) {
-    fun help(): String = StringWriter().also { e.parser.handleError(e, PrintWriter(it)) }.toString()
+    fun handleErrorMessage(): String = StringWriter().also { e.parser.handleError(e, PrintWriter(it)) }.toString()
+    fun help(): String = e.parser.formatHelp()
 }
 

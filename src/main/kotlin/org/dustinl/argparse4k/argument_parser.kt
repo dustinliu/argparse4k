@@ -4,6 +4,7 @@ import net.sourceforge.argparse4j.ArgumentParsers
 import net.sourceforge.argparse4j.helper.HelpScreenException
 import net.sourceforge.argparse4j.impl.Arguments
 import net.sourceforge.argparse4j.inf.ArgumentParserException
+import net.sourceforge.argparse4j.inf.Subparser
 import org.dustinl.argparse4k.exception.ArgumentException
 import org.dustinl.argparse4k.exception.HelpException
 import org.slf4j.LoggerFactory
@@ -20,7 +21,7 @@ interface ArgumentParser {
     fun positionals(name: String, help: String? = null): Delegator<List<String>>
     fun description(desc: String)
     fun epilog(epilog: String)
-    fun help(): String
+    fun usage(): String
     fun registerCommand(name: String): CommandArgumentParser
     fun getCommandParser(name: String): CommandArgumentParser
     fun getCommand(): String
@@ -80,10 +81,15 @@ abstract class ArgumentParserBase(val parser: JavaParser): ArgumentParser {
         parser.epilog(epilog)
     }
 
-    override fun help(): String = parser.formatHelp()
+    override fun usage(): String = parser.formatHelp()
 
     override fun registerCommand(name: String) =
-            commandParsers.computeIfAbsent(name) { CommandArgumentParser(name, this) }
+            commandParsers.computeIfAbsent(name) {
+                val subParser = parser.addSubparsers().title("subcommands")
+                        .description("valid subcommands").metavar("COMMAND")
+                        .addParser(name).setDefault("command", name)
+                CommandArgumentParser(subParser, this)
+            }
 
     override fun getCommandParser(name: String) = registerCommand(name)
 
@@ -115,8 +121,12 @@ internal class ArgumentParserImpl constructor(progName: String, private val args
     }
 }
 
-class CommandArgumentParser internal constructor(val name: String, rootParser: ArgumentParserBase)
-    : ArgumentParserBase(rootParser.parser.addSubparsers().addParser(name).setDefault("command", name)) {
+class CommandArgumentParser internal constructor( internal val subParser: Subparser, rootParser: ArgumentParserBase)
+    : ArgumentParserBase(subParser) {
     override val options by lazy { rootParser.options }
+
+    fun help(helpMessage: String) {
+        subParser.help(helpMessage)
+    }
 }
 
