@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/dustinliu/argparse4k.svg?branch=master)](https://travis-ci.org/dustinliu/argparse4k)
+[![codecov](https://codecov.io/gh/dustinliu/argparse4k/branch/master/graph/badge.svg)](https://codecov.io/gh/dustinliu/argparse4k)
 
 # argparse4k
 
