@@ -12,11 +12,14 @@ script:
 - "./gradlew clean"
 - if [ "${TRAVIS_PULL_REQUEST}" = "true" ];then ./gradlew check;fi
 - if [ "${TRAVIS_PULL_REQUEST}" = "false" ];then git checkout master;git remote set-url origin "https://$GITHUB_KEY@github.com/dustinliu/argparse4k";fi
-- test "${TRAVIS_PULL_REQUEST}" != "false" || test "${TRAVIS_BRANCH}" != "master" || ./gradlew clean release
+- test "${TRAVIS_PULL_REQUEST}" != "false" || test "${TRAVIS_BRANCH}" != "master" || ./gradlew clean test release jacocoTestReport
 
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
 - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 
 cache:
   bundler: true
@@ -30,3 +33,4 @@ env:
   - secure: JQFYeEe8V3I8hFiW75Ot82MApRmFBpy0tquPd0s4Ao3HIDKprhbrqIDCRuwDfcO8JbJKUZV9YP6Dk9b+lKV6EjWy6k/eM61yhkpJnOp8acEcZwJ0ahFUNerzK56ZVFZJfZh/DAjdN9lG5sSt78pfpxeqDbVZOkDRTURdHy1c3Flz4kgg7jnQUfbPRfJSofXDYsidRs76/yHVXBBrDyeFAaJ4OdF4HQZ86SC2Na7riqHDOdcPEq9IV0XVAx8yWF48SHivY1E0OmTj1lHgmco1zJD4ABYFzskxwYIyf1uZo4Dpw23YKoaX4MbE8iBrwrEG+hGGqvGmXu6svRTbSTH/8H0glMxyfso2e8234/sCG45hlnYz1M8Gw4lxaNEnex6GNplZhtq4+tHp2qPT4AOEz8HM14B1EcievqDESyvXuByZqV0IRaHgVj+AaCBiYFvQ6nxdyeH5T7lsKeKwqK6QkoqkafRbM74pS3maHlbRVfnHCSfjUkq6iM3MqYTtTVADLIRJ31Sns6SChXT8UoQI2pPEwoIpoY6dO50OxDEt2g6V7KxDsoDUnM5sahP4nytyFOwi1sVHcGRySaF52S7YEZ+MBqZN1l7cGqYYd5aFGnaUP4Tw56/X9ZWJ8eP+RKNPB7baYTwf2AENPcBbl809ZWgeBOyZZtqjp8fgrpu1krw=
   - secure: Nk5hVcaWZpxNsbt9O4+BxfAeYDqdYUU1XgIY7Yzo8uIpXJZsjLkRR1v+C/ASQYgAVmxWKY+EWEZLDfiZIBlQkFjYQAjQkOvHQtsoaNBlHRYoUocFctyAcj1xFZoKHvU/hhMHut0K2/+ZQBfIU8DSyTSk7iCPmRMMg06BctTC4tYcOnHo/dIM6INvUK++HjOY63etpVnD0L7nACVbzNVIo23+KvUp3ouJ8RWXJj2cgF6aaekD9r4QheJ8Zooe9inxwokjmAoByZTNMKxiw+0zwXpES0GLs8VjoMTTFeCC4hYXoDv9F+a2XWWjFDi0joSiYCabuAr8ADbXQ9Q3LmQpW0WV+FUQrKDtw4ZlHIPywQLCfCcnjEGW/pg5G/22d0Yoz4LTjT3WxjlNHG2QpUOjBW6UXJP6UQquYB0cIYeUn9egGocvqZTCW+j0ppAWL/vw9Dv1wy8q5z/9CHiMJEHU5HsY6+SOyNfjG00exgNBiaim59JublkvF0WdD1pQF4Ed630Q26e2MKswFvkmrsEAQYn0KUrll3RcicP2VHOh5kWZdKFK6GFWPotodHLUxeS/oaV9GgB2LXBAcyAFtwWbPDwL2GwqN3AgHMEM0aJp8bMQh15Aj5auzoj1+cYShgA7UP7wiyspclzxKGM1L3Z0kE3xsVsvVcDBCH0GFlXRqss=
   - secure: H6sozOQYIsDEdvXAYgBVZ+LRRx5xV3fhzdnhM8ssZn6jQIgfgZoTllcA/q+lxrTHk2LeL9vyR6cZJk2sMAkgUEjyZqVNUJXY2l5Qs3rv2814RKH/vsRoCSx7OIEFewNOIKxAwyiFrHesjmPYZbUyG+JQPwY+0KI4eQAysHZLjxEed/gFTEXog37sta7iqhc2OHKISEIUM9t1M5kfnQTS0HgemH7COfaSxb4FVeRsOdi1pM6r+1gnB88cQruRFsOam00Klv07zxe5ewiV2JsjgOdkQmJ0GiwyIijdrxpNXRKQZDkhwrEQBsov3j6KLDM9cZpO7WtileTu347ggwYLvAdfKf4XEVDQr2tByqBvvykr3oAmUtsja0bzgqNm9NMvg2nTiEyI6dKKFKb56JDq/X8zw+8IUs0q1XRlf852+nJ7BNyLSNMRQ7GpctlFMJCeo8hRr39oOJ1xX/CTos1uHN2fBjsoMOVgDlqtqBDC9hcVCPG3Nd7oHV5xdJK9gGKKh2+rKHwdkDEZthixUytk+v1iPE3kmWNFPWbMyZcSJpRwSp5vSCgD/TTcMtqmwv6th88qr+bvvjp9B/5UwVQ/mtZcZwd0cdD2+AcBWaIHLiSpXTdugcxi199oQVtun2LnJjizV1VIJA4tOnbP7za8W17QbDOEbHP3tCb0a1cZQtI=
+#  - secure: "l75MvLoJ34jLQkIGf3aGAYJbsrugEk7q26LhOJKmbTROH0rKHCY1Sme3/3kk3cZBvNP+N/GlQj5noiAwwC/0cNj1ZLYy6GUbZZw9eodE7t+cN+V0pHCi7K5YOFFABCeuVNSNO+JewfTnL1QDxhi9dl4KbQwc7OSXO2JwaMKqXjRNq+cRmoJceJpUmqmJaNBmAsgz0DtQ0QRTH67roroHWOhUbSSA//9UTI+OFdon+yljjgSBDI78rQr/OH7rxV4vG76ci2qMf0LkphAKoiz3UaDxAERwKmx9YPIMFKK0zlScwu+PgvKX2kHJHaCrploLnjhnDsTH4rT4KZO/cWBVQDzS8vWBosEjXc3546XknGnYK40DvPrDf8QmvoZ64xtpfKjMgST28HYb/a7Kj7sskkwBtrE4XaYc3AVEetFgIcUg2VEWMYdJk0qCfMNukIzfulJp11P4bzkslA5Y5w1iOOZuMb11Qjz7NWHSxGrSYcJa6yo7vDB4mmHiH1ytRyM3Uijt5Md0AtlSEEv00MBhTtZf/4YfQQ67JGXzSk2IrJw2Pm6Xq4oRB7+1KBNVkBJ/GKvEmsBoeZ/VXYjhfWkEiXlY97kmh4PXTJGs1g0OufuTYpryFTKfLKUNvSyPNk5tLSDaawV7Wl4eoU8jplHUEQwTS9z0ulOpuWms49Jo/24="

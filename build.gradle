@@ -53,6 +53,13 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 
+test {
+    jacoco {
+        append = false
+        destinationFile = file("$buildDir/jacoco/junitPlatformTest.exec")
+    }
+}
+
 junitPlatform {
     platformVersion '1.0.2' // optional, defaults to plugin version
     reportsDir file('build/test-results/junit-platform') // this is the default
@@ -64,15 +71,17 @@ junitPlatform {
 jacoco {
     toolVersion = "0.8.0"
     reportsDir = file("$buildDir/jacoco/")
+    applyTo junitPlatformTest
 }
 
 jacocoTestReport {
-//    classDirectories = files("${buildDir}/classes")
+    classDirectories = files("${buildDir}/classes")
 
     reports {
         xml.enabled true
+        xml.destination = file("${buildDir}/reports/jacoco/report.xml")
         csv.enabled false
-        html.destination file("${buildDir}/jacoco/jacocoHtml")
+        html.enabled false
     }
 }
 
@@ -175,3 +184,4 @@ release {
 afterReleaseBuild.dependsOn bintrayUpload
 install.dependsOn sourcesJar
 install.dependsOn kdocJar
+test.dependsOn junitPlatformTest
