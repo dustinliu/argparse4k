@@ -1,7 +1,7 @@
 language: java
+
 jdk:
 - oraclejdk8
-- openjdk8
 
 sudo: false
 
@@ -11,9 +11,9 @@ branches:
 
 script:
 - "./gradlew clean"
-- if [ "${TRAVIS_PULL_REQUEST}" = "true" ];then ./gradlew check;fi
-- if [ "${TRAVIS_PULL_REQUEST}" = "false" ];then git checkout master;git remote set-url origin "https://$GITHUB_KEY@github.com/dustinliu/argparse4k";fi
-- test "${TRAVIS_PULL_REQUEST}" != "false" || test "${TRAVIS_BRANCH}" != "master" || ./gradlew clean test release jacocoTestReport
+- test "${TRAVIS_PULL_REQUEST}" != "false" && ./gradlew check
+- test "${TRAVIS_PULL_REQUEST}" == "false" && git checkout master && git remote set-url origin "https://$GITHUB_KEY@github.com/dustinliu/argparse4k"
+- test "${TRAVIS_PULL_REQUEST}" == "false" && test "${TRAVIS_BRANCH}" == "master" && ./gradlew clean test release jacocoTestReport
 
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
