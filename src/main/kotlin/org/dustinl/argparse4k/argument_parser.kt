@@ -7,6 +7,7 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException
 import net.sourceforge.argparse4j.inf.Subparser
 import org.dustinl.argparse4k.exception.ArgumentException
 import org.dustinl.argparse4k.exception.HelpException
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import net.sourceforge.argparse4j.inf.ArgumentParser as JavaParser
 
@@ -103,11 +104,11 @@ abstract class ArgumentParserBase(val parser: JavaParser): ArgumentParser {
 internal class ArgumentParserImpl constructor(progName: String, private val args: Array<String>)
     : ArgumentParserBase(ArgumentParsers.newFor(progName).build()) {
     companion object {
-        val logger = LoggerFactory.getLogger(this::class.java)!!
+        val logger: Logger = LoggerFactory.getLogger(this::class.java)
     }
 
     override val options: Options by lazy {
-        logger.debug("init options")
+        logger.trace("init options")
         try {
             val namespace = parser.parseArgs(args)
             object : Options {

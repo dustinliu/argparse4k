@@ -42,7 +42,7 @@ dependencies {
     testRuntime("org.junit.jupiter:junit-jupiter-engine:5.0.2")
     testCompile 'org.mockito:mockito-inline:2.13.0'
     testRuntime 'ch.qos.logback:logback-classic:1.2.3'
-
+    testRuntime 'org.codehaus.groovy:groovy-all:2.4.13'
 }
 
 compileKotlin {
@@ -75,7 +75,12 @@ jacoco {
 }
 
 jacocoTestReport {
-    classDirectories = files("${buildDir}/classes")
+    classDirectories = fileTree(
+            dir: '${buildDir}/classes',
+            excludes: [
+                    '**/test/**/*.class'
+            ]
+    )
 
     reports {
         xml.enabled true
