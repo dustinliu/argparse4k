@@ -18,8 +18,8 @@ interface ArgumentParser {
             : Delegator<String>
     fun values(vararg names: String, help: String? = null, required: Boolean = false, metavar: String? = null)
             : Delegator<List<String>>
-    fun positional(name: String, help: String? = null): Delegator<String>
-    fun positionals(name: String, help: String? = null): Delegator<List<String>>
+    fun positional(name: String, help: String? = null, required: Boolean = false): Delegator<String>
+    fun positionals(name: String, help: String? = null, required: Boolean = false): Delegator<List<String>>
     fun description(desc: String)
     fun epilog(epilog: String)
     fun usage(): String
@@ -62,14 +62,16 @@ abstract class ArgumentParserBase(val parser: JavaParser): ArgumentParser {
         return Delegator(this, argument)
     }
 
-    override fun positional(name: String, help: String?): Delegator<String> {
-        val argument = parser.addArgument(name).nargs("?")
+    override fun positional(name: String, help: String?, required: Boolean): Delegator<String> {
+        val argument = parser.addArgument(name)
+        if (!required) argument.nargs("?")
         help?.run { argument.help(help) }
         return Delegator(this, argument)
     }
 
-    override fun positionals(name: String, help: String?): Delegator<List<String>> {
+    override fun positionals(name: String, help: String?, required: Boolean): Delegator<List<String>> {
         val argument = parser.addArgument(name).nargs("*")
+        if (required) argument.nargs("+") else argument.nargs("*")
         help?.run { argument.help(help) }
         return Delegator(this, argument)
     }

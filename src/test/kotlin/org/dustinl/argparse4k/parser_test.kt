@@ -40,7 +40,7 @@ class ParserTest {
     }
 
     @Test
-    fun `value missing test`() {
+    fun `value required missing test`() {
         val parser = ArgumentParserImpl("testprog", arrayOf())
         val testClass = object {
             val foo by parser.value("-foo", metavar = "ggg", help = "fo fo fo", required = true)
@@ -71,23 +71,23 @@ class ParserTest {
     }
 
     @Test
-    fun `values missing test`() {
-        val parser = ArgumentParserImpl("testprog", arrayOf())
-        val testClass = object {
-            val foo by parser.values("-foo", metavar = "ggg", help = "fo fo fo", required = true)
-        }
-
-        assertThrows(ArgumentException::class.java) { testClass.foo }
-    }
-
-    @Test
-    fun `values missing and not required test`() {
+    fun `values not required missing test`() {
         val parser = ArgumentParserImpl("testprog", arrayOf())
         val testClass = object {
             val foo by parser.values("-foo", metavar = "ggg", help = "fo fo fo")
         }
 
         assertEquals(null, testClass.foo)
+    }
+
+    @Test
+    fun `values required missing test`() {
+        val parser = ArgumentParserImpl("testprog", arrayOf())
+        val testClass = object {
+            val foo by parser.values("-foo", metavar = "ggg", help = "fo fo fo", required = true)
+        }
+
+        assertThrows(ArgumentException::class.java) { testClass.foo }
     }
 
     @Test
@@ -107,13 +107,23 @@ class ParserTest {
     }
 
     @Test
-    fun `positional missing test`() {
+    fun `positional not required missing test`() {
         val parser = ArgumentParserImpl("testprog", arrayOf())
         val testClass = object {
             val container by parser.positional("container", help = "container name")
         }
 
         assertEquals(null, testClass.container)
+    }
+
+    @Test
+    fun `positional required missing test`() {
+        val parser = ArgumentParserImpl("testprog", arrayOf())
+        val testClass = object {
+            val container by parser.positional("container", help = "container name", required = true)
+        }
+
+        assertThrows(ArgumentException::class.java) { testClass.container }
     }
 
     @Test
@@ -128,13 +138,23 @@ class ParserTest {
     }
 
     @Test
-    fun `positionals missing test`() {
+    fun `positionals not required but missing test`() {
         val parser = ArgumentParserImpl("testprog", arrayOf())
         val testClass = object {
-            val container by parser.positional("container", help = "container name")
+            val container by parser.positionals("container", help = "container name")
         }
 
-        assertEquals(null, testClass.container)
+        assertEquals(listOf<String>(), testClass.container)
+    }
+
+    @Test
+    fun `positionals required but missing test`() {
+        val parser = ArgumentParserImpl("testprog", arrayOf())
+        val testClass = object {
+            val container by parser.positionals("container", help = "container name", required = true)
+        }
+
+        assertThrows(ArgumentException::class.java) { testClass.container }
     }
 
     @Test
