@@ -9,14 +9,15 @@ import org.dustinl.argparse4k.exception.ArgumentException
 import org.dustinl.argparse4k.exception.HelpException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.io.PrintWriter
 import net.sourceforge.argparse4j.inf.ArgumentParser as JavaParser
 
 interface ArgumentParser {
     val options: Options
     fun flag(vararg names: String, help: String? = null): Delegator<Boolean>
-    fun value(vararg names: String, help: String? = null, required: Boolean = false, metavar: String? = null)
+    fun value(vararg names: String, help: String? = null, required: Boolean = false)
             : Delegator<String>
-    fun values(vararg names: String, help: String? = null, required: Boolean = false, metavar: String? = null)
+    fun values(vararg names: String, help: String? = null, required: Boolean = false)
             : Delegator<List<String>>
     fun positional(name: String, help: String? = null, required: Boolean = false): Delegator<String>
     fun positionals(name: String, help: String? = null, required: Boolean = false): Delegator<List<String>>
@@ -24,9 +25,9 @@ interface ArgumentParser {
     fun epilog(epilog: String)
     fun usage(): String
     fun registerCommand(name: String): CommandArgumentParser
-    fun getCommandParser(name: String): CommandArgumentParser
+    fun getCommandParser(name: String): CommandArgumentParser?
     fun getCommand(): String
-    fun printError(e: ArgumentException)
+    fun printError(e: ArgumentException, writer: PrintWriter = PrintWriter(System.err))
 }
 
 interface Options {
@@ -46,18 +47,16 @@ abstract class ArgumentParserBase(val parser: JavaParser): ArgumentParser {
         return Delegator(this, argument)
     }
 
-    override fun value(vararg names: String, help: String?, required: Boolean, metavar: String?)
+    override fun value(vararg names: String, help: String?, required: Boolean)
             : Delegator<String> {
         val argument = parser.addArgument(*names).required(required)
-        metavar?.also { argument.metavar(metavar) }
         help?.run { argument.help(help) }
         return Delegator(this, argument)
     }
 
-    override fun values(vararg names: String, help: String?, required: Boolean, metavar: String?)
+    override fun values(vararg names: String, help: String?, required: Boolean)
             : Delegator<List<String>> {
         val argument = parser.addArgument(*names).required(required).nargs("*")
-        metavar?.also { argument.metavar(metavar) }
         help?.run { argument.help(help) }
         return Delegator(this, argument)
     }
@@ -70,7 +69,7 @@ abstract class ArgumentParserBase(val parser: JavaParser): ArgumentParser {
     }
 
     override fun positionals(name: String, help: String?, required: Boolean): Delegator<List<String>> {
-        val argument = parser.addArgument(name).nargs("*")
+        val argument = parser.addArgument(name)
         if (required) argument.nargs("+") else argument.nargs("*")
         help?.run { argument.help(help) }
         return Delegator(this, argument)
@@ -94,12 +93,12 @@ abstract class ArgumentParserBase(val parser: JavaParser): ArgumentParser {
                 CommandArgumentParser(subParser, this)
             }
 
-    override fun getCommandParser(name: String) = registerCommand(name)
+    override fun getCommandParser(name: String): CommandArgumentParser? = commandParsers[name]
 
     override fun getCommand(): String = options.get("command")
 
-    override fun printError(e: ArgumentException) {
-        e.e.parser.handleError(e.e)
+    override fun printError(e: ArgumentException, writer: PrintWriter) {
+        e.e.parser.handleError(e.e, writer)
     }
 }
 

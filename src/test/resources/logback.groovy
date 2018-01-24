@@ -11,9 +11,6 @@ appender("STDOUT", ConsoleAppender) {
 }
 
 appender("NULL", NOPAppender) {
-    encoder(PatternLayoutEncoder) {
-        pattern = "[%thread] %F:%L - %msg%n"
-    }
 }
 
 if (System.getenv("CI") != "true") {

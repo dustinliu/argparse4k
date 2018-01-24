@@ -10,7 +10,7 @@ class Delegator<out T> internal constructor(private val parser: ArgumentParser, 
         val logger: Logger = LoggerFactory.getLogger(Delegator::class.java)
     }
 
-    lateinit private var name: String
+    private lateinit var name: String
 
     operator fun provideDelegate(thisRef: Any?, prop: KProperty<*>): Delegator<T> {
         name = "$this:${prop.name}"

@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.2.10'
+    ext.kotlin_version = '1.2.21'
     ext.dokka_version = '0.9.14'
     repositories {
         mavenCentral()
@@ -43,6 +43,8 @@ dependencies {
     testCompile 'org.mockito:mockito-inline:2.13.0'
     testRuntime 'ch.qos.logback:logback-classic:1.2.3'
     testRuntime 'org.codehaus.groovy:groovy-all:2.4.13'
+    testCompile 'org.mockito:mockito-inline:2.13.0'
+
 }
 
 compileKotlin {
@@ -86,7 +88,8 @@ jacocoTestReport {
         xml.enabled true
         xml.destination = file("${buildDir}/reports/jacoco/report.xml")
         csv.enabled false
-        html.enabled false
+        html.enabled true
+        html.destination "${buildDir}/reports/jacoco/html"
     }
 }
 
