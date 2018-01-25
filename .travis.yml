@@ -10,18 +10,34 @@ branches:
   - master
   - snapshot
 
-script:
-- "./gradlew clean check"
-- ./gradlew jacocoTestReport
-- test "${TRAVIS_PULL_REQUEST}" != "false" || test "${TRAVIS_BRANCH}" != "master" || git checkout master;git remote set-url origin "https://$GITHUB_KEY@github.com/dustinliu/argparse4k"
-- test "${TRAVIS_PULL_REQUEST}" != "false" || test "${TRAVIS_BRANCH}" != "master" || ./gradlew release
+    #script:
+    #- "./gradlew clean check"
+    #- ./gradlew jacocoTestReport
+    #- test "${TRAVIS_PULL_REQUEST}" != "false" || test "${TRAVIS_BRANCH}" != "master" || git checkout master;git remote set-url origin "https://$GITHUB_KEY@github.com/dustinliu/argparse4k"
+    #- test "${TRAVIS_PULL_REQUEST}" != "false" || test "${TRAVIS_BRANCH}" != "master" || ./gradlew release
+
+stages:
+  - test
+  - name: deploy
+    if: branch = master
+  - codecov
+
+jobs:
+  include:
+    - stage: test
+      script: ./gradlew clean check
+    - stage: deploy
+      script:
+        - git checkout master && git remote set-url origin "https://$GITHUB_KEY@github.com/dustinliu/argparse4k"
+        - ./gradlew build release
+    - stage: codecov
+      script:
+        - ./gradlew check jacocoTestReport
+        -  bash <(curl -s https://codecov.io/bash)
 
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
 - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
 
 cache:
   bundler: true
