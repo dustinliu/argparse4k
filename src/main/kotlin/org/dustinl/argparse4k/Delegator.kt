@@ -15,7 +15,6 @@ class Delegator<out T> internal constructor(private val parser: ArgumentParser, 
     operator fun provideDelegate(thisRef: Any?, prop: KProperty<*>): Delegator<T> {
         name = "$this:${prop.name}"
         logger.trace("bind property '$name'")
-        argument.metavar(argument.textualName())
         argument.dest(name)
         return this
     }

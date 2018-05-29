@@ -19,4 +19,4 @@ if (System.getenv("CI") != "true") {
     root(ERROR, ["NULL"])
 }
 
-logger("org.dustinl.argparse4k", TRACE)
+logger("org.dustinl.argparse4k", DEBUG)

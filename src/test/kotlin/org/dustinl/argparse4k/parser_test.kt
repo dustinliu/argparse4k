@@ -47,6 +47,21 @@ class ParserTest {
     }
 
     @Test
+    fun `value metavar test`() {
+        val parser = ArgumentParserImpl("testprog", arrayOf("-foo", "bar"))
+        val testClass = object {
+            val foo by parser.value("-foo", metavar = "foometavar", help = "fo fo fo")
+            val version by parser.flag("-v", help = "help version")
+            val detached by parser.flag("-d", "--detached", help = "fdsf")
+        }
+
+        assertEquals(false, testClass.version)
+        assertEquals(false, testClass.detached)
+        assertEquals("bar", testClass.foo)
+        assertTrue(parser.usage().contains("foometavar"))
+    }
+
+    @Test
     fun `value required missing test`() {
         val parser = ArgumentParserImpl("testprog", arrayOf())
         val testClass = object {
@@ -91,6 +106,18 @@ class ParserTest {
 
         assertEquals("bar", testClass.foo[0])
         assertEquals("ggg", testClass.foo[1])
+    }
+
+    @Test
+    fun `values metavar test`() {
+        val parser = ArgumentParserImpl("testprog", arrayOf("-foo", "bar", "ggg"))
+        val testClass = object {
+            val foo by parser.values("-foo", help = "fo fo fo", metavar = "foometarvars")
+        }
+
+        assertEquals("bar", testClass.foo[0])
+        assertEquals("ggg", testClass.foo[1])
+        assertTrue(parser.usage().contains("foometarvars"))
     }
 
     @Test

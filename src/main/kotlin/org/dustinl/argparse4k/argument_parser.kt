@@ -15,9 +15,9 @@ import net.sourceforge.argparse4j.inf.ArgumentParser as JavaParser
 interface ArgumentParser {
     val options: Options
     fun flag(vararg names: String, help: String? = null): Delegator<Boolean>
-    fun value(vararg names: String, help: String? = null, required: Boolean = false)
+    fun value(vararg names: String, help: String? = null, required: Boolean = false, metavar: String? = null)
             : Delegator<String>
-    fun values(vararg names: String, help: String? = null, required: Boolean = false)
+    fun values(vararg names: String, help: String? = null, required: Boolean = false, metavar: String? = null)
             : Delegator<List<String>>
     fun positional(name: String, help: String? = null, required: Boolean = false): Delegator<String>
     fun positionals(name: String, help: String? = null, required: Boolean = false): Delegator<List<String>>
@@ -47,16 +47,18 @@ abstract class ArgumentParserBase(val parser: JavaParser): ArgumentParser {
         return Delegator(this, argument)
     }
 
-    override fun value(vararg names: String, help: String?, required: Boolean)
+    override fun value(vararg names: String, help: String?, required: Boolean, metavar: String?)
             : Delegator<String> {
         val argument = parser.addArgument(*names).required(required)
+        argument.metavar(metavar?:argument.textualName())
         help?.run { argument.help(help) }
         return Delegator(this, argument)
     }
 
-    override fun values(vararg names: String, help: String?, required: Boolean)
+    override fun values(vararg names: String, help: String?, required: Boolean, metavar: String?)
             : Delegator<List<String>> {
         val argument = parser.addArgument(*names).required(required).nargs("*")
+        argument.metavar(metavar?:argument.textualName())
         help?.run { argument.help(help) }
         return Delegator(this, argument)
     }
